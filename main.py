@@ -3,6 +3,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import redis
+from flask_script import Manager
+from flask_migrate import Migrate,MigrateCommand
 
 app = Flask(__name__)
 
@@ -21,12 +23,18 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 #创建连接redis数据库的对象
 redis_store = redis.StrictRedis(host=Config.REDIS_HOST,port=Config.REDIS_PORT)
-
+#创建脚本管理器
+manager = Manager(app)
+#在迁移时让app与db产生关联
+Migrate(app,db)
+#将数据库迁移的脚本、命令添加到脚本管理器中
+manager.add_command('db',MigrateCommand)
 
 @app.route('/')
 def index():
-    redis_store.set('name','zrt')
+    # redis_store.set('name','zrt')
     return 'index'
 
 if __name__ == '__main__':
-    app.run()
+
+    manager.run()
