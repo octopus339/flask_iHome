@@ -6,6 +6,7 @@ from config import configs
 from flask_sqlalchemy import SQLAlchemy
 import redis
 db = SQLAlchemy()
+redis_store = None
 def get_app(config_name):
     app = Flask(__name__)
 
@@ -15,10 +16,13 @@ def get_app(config_name):
     db.init_app(app)
 
     #创建连接redis数据库的对象
+    global redis_store
     redis_store = redis.StrictRedis(host=configs[config_name].REDIS_HOST,port=configs[config_name].REDIS_PORT)
 
     #开启CSRF保护
     CSRFProtect(app)
     #把session数据存储到redis数据库中
     Session(app)
+    from iHome.api_1_0 import api
+    app.register_blueprint(api)
     return app
