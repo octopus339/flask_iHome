@@ -6,5 +6,6 @@ html_blue = Blueprint('html',__name__)
 def show_html(file_name):
     if not file_name:
         file_name = 'index.html'
-    file_name = 'html/%s'%file_name
+    if file_name != 'favicon.ico':
+        file_name = 'html/%s'%file_name
     return current_app.send_static_file(file_name)
