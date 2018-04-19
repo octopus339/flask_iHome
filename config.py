@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+import logging
 import redis
 class Config(object):
     """配置参数"""
@@ -19,8 +20,11 @@ class Config(object):
     #设置session的过期时间
     PERMANENT_SESSION_LIFETIME = 3600 * 24  # 有效期为一天
 class Dev(Config):
-    pass
+    #给日志定义调试级别,测试模式下调试模式用DEBUG
+    LOGGING_LEVEL = logging.DEBUG
 class Pro(Config):
+    # 给日志定义调试级别，线上模式调试级别一定不能是DEBUG
+    LOGGING_LEVEL = logging.WARN
     DEBUG = False
 class UnitTest(Config):
     TESTING = True

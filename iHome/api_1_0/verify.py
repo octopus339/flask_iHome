@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
+import logging
 from flask import abort, jsonify
+from flask import current_app
 
 from iHome.until.captcha.captcha import captcha
 from . import api
@@ -18,6 +20,11 @@ def get_image_code():
         abort(403)
     #2.生成图片验证码
     name,text,image = captcha.generate_captcha()
+    #debug只能在测试模式下使用
+    #logging.debug(text)
+
+    # current_app.logger.warning(text)
+
     #3.使用redis数据库存储图片验证码，ImageCode：uuid作为key
     try:
         if uuid:
@@ -25,6 +32,11 @@ def get_image_code():
         redis_store.set('ImageCode:%s'%uuid,text,constants.IMAGE_CODE_REDIS_EXPIRES)
     except Exception as e:
         print e
+        #有可能使服务器崩溃的警报，线上要用error模式
+        # logging.error(e)
+        #两种显示日志方法都可以使用
+        current_app.logger.error(e)
+
         return jsonify(errno=RET.DBERR,errmsg = '存储验证码错误')
     #记录当前uuid，方便下一次使用时作为上一次的uuid，删除text
     global last_uuid
