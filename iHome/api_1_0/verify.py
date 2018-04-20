@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 import logging
+import random
 import re
 
 from flask import abort, jsonify
@@ -7,6 +8,7 @@ from flask import current_app
 from flask import json
 
 from iHome.until.captcha.captcha import captcha
+from iHome.until.sms import CCP
 from . import api
 from flask import make_response,request
 from iHome import redis_store
@@ -20,8 +22,10 @@ def send_sms_code():
     2.判断获取的参数不为空，并校验手机号
     3.获取数据库中存储的验证码text
     4.用用户输入的验证码与数据库中的验证码对比
-    5.对比后如果一致则给用户发送短信
-    6.响应发送短信的结果
+    5.对比成功后生成短信验证码
+    6. 调用单例发送短信验证码
+    7.如果短信验证码发送成功，则把短信验证码保存到redis数据库
+    8.响应发送短信的结果
     """
     #1.获取用户输入的手机号 验证码 uuid
     #因为前端传过来的值是json格式的字符串，所以用data接收
@@ -33,7 +37,7 @@ def send_sms_code():
     uuid = json_dict.get('uuid')
     #2.判断获取的参数不为空，并校验手机号
     #判断参数是否存在
-    if not all([mobile,imageCode,uuid]):
+    if not all([mobile,imageCode_client,uuid]):
         return jsonify(errno = RET.PARAMERR,errmsg = '缺少参数' )
     #判断手机格式是否正确
     if not re.match(r'^1[345678][0-9]{9}$',mobile):
@@ -48,8 +52,21 @@ def send_sms_code():
     #4.用用户输入的验证码与数据库中的验证码对比
     if imageCode_client != imageCode_server:
         return jsonify(errno = RET.PARAMERR,errmsg = '输入的验证码错误')
-    # 5.TODO 对比后如果一致则给用户发送短信
-    #6.响应发送短信的结果
+    #5.对比成功后生成短信验证码
+    sms_code = '%06d'%random.randint(0,999999)
+    #6. 调用单例发送短信验证码
+    result = CCP().send_sms_code(mobile,[sms_code,constants.SMS_CODE_REDIS_EXPIRES/60],'1')
+    if result != 1:
+        return jsonify(errno = RET.THIRDERR,errmsg = '短信验证码发送失败')
+    #7.如果短信验证码发送成功，则把短信验证码保存到redis数据库
+    try:
+        redis_store.set('SMS:%s'%mobile,sms_code,constants.SMS_CODE_REDIS_EXPIRES)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '存储短信验证码失败')
+
+    #8.响应发送短信的结果
+    return jsonify(errno = RET.OK,errmsg = '发送短信验证码成功')
 
 
 
