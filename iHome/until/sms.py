@@ -39,8 +39,9 @@ class CCP(object):
         #发送短信验证码的方法
         #result 会返回smsMessageSid  dateCreated   statusCode三个字典格式的数据
         result = self.rest.sendTemplateSMS(to, datas, tempId)
+
         #判断短信是否发送成功，如果发送成功statusCode：000000
-        if result.statusCode == '000000':
+        if result.get('statusCode') == '000000':
             #这里返回的值给调用者判断短信是否发送成功
             return 1
         else:

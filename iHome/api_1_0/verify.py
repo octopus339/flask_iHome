@@ -45,15 +45,17 @@ def send_sms_code():
     #3.获取数据库中存储的验证码text
     try:
         imageCode_server = redis_store.get('ImageCode:%s'%uuid)
+
     except Exception as e:
         return jsonify(errno = RET.DBERR,errmsg = '查询验证码失败')
     if not imageCode_server:
         return jsonify(errno = RET.NODATA,errmsg = '验证码不存在')
     #4.用用户输入的验证码与数据库中的验证码对比
-    if imageCode_client != imageCode_server:
+    if imageCode_client.lower() != imageCode_server.lower():
         return jsonify(errno = RET.PARAMERR,errmsg = '输入的验证码错误')
     #5.对比成功后生成短信验证码
     sms_code = '%06d'%random.randint(0,999999)
+    current_app.logger.error(sms_code)
     #6. 调用单例发送短信验证码
     result = CCP().send_sms_code(mobile,[sms_code,constants.SMS_CODE_REDIS_EXPIRES/60],'1')
     if result != 1:
@@ -61,8 +63,9 @@ def send_sms_code():
     #7.如果短信验证码发送成功，则把短信验证码保存到redis数据库
     try:
         redis_store.set('SMS:%s'%mobile,sms_code,constants.SMS_CODE_REDIS_EXPIRES)
+
     except Exception as e:
-        current_app.logger.error(e)
+        current_app.logger.debug(e)
         return jsonify(errno = RET.DBERR,errmsg = '存储短信验证码失败')
 
     #8.响应发送短信的结果
@@ -81,6 +84,7 @@ def get_image_code():
         abort(403)
     #2.生成图片验证码
     name,text,image = captcha.generate_captcha()
+    current_app.logger.debug(text)
     #debug只能在测试模式下使用
     #logging.debug(text)
 
