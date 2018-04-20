@@ -31,10 +31,10 @@ def register():
 
     mobile = json_dict.get('mobile')
     sms_code_client = json_dict.get('sms_code')
-    passwoed = json_dict.get('passwoed')
+    password = json_dict.get('password')
 
     #2.判断参数是否缺少
-    if not all([mobile,sms_code_client,passwoed]):
+    if not all([mobile,sms_code_client,password]):
         return jsonify(errno = RET.PARAMERR,errmsg = '缺少参数')
     if not re.match(r'^1[3456789][0-9]{9}$',mobile):
         return jsonify(errno = RET.PARAMERR,errmsg = '手机格式错误')
@@ -57,6 +57,7 @@ def register():
     user.mobile = mobile
     user.name  = mobile
     #TODO 密码需要加密后再保存到数据库
+    user.password_hash = password
     #6.将属性写入数据库
     try:
         db.session.add(user)
