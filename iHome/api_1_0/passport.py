@@ -56,8 +56,9 @@ def register():
     user = User()
     user.mobile = mobile
     user.name  = mobile
-    #TODO 密码需要加密后再保存到数据库
-    user.password_hash = password
+
+    #需要将密码加密后保存到数据库：调用password属性的setter方法
+    user.password= password
     #6.将属性写入数据库
     try:
         db.session.add(user)
