@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+# 图片验证和短信验证
 import logging
 import random
 import re
@@ -14,6 +15,7 @@ from flask import make_response,request
 from iHome import redis_store
 from iHome.until.response_code import RET
 from iHome import constants
+
 
 @api.route('/sms_code',methods=['POST'])
 def send_sms_code():
