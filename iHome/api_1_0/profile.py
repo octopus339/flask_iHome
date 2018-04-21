@@ -32,18 +32,18 @@ def get_user_info():
     }
     #4.响应个人信息的结果
     #前端会收到这样一个字典
-    """
-    {
-    'data':{
-        'user_id':user.id,
-        'avatar_url':user.avatar_url,
-        'name':user.name,
-        'mobile':user.mobile
-    }
-    'errmsg':'OK',
-    }
-    'errno':'0'
-    }
-    """
+
+    # {
+    # 'data':{
+    #     'user_id':user.id,
+    #     'avatar_url':user.avatar_url,
+    #     'name':user.name,
+    #     'mobile':user.mobile
+    # }
+    # 'errmsg':'OK',
+    # }
+    # 'errno':'0'
+    # }
+
 
     return jsonify(errno = RET.OK,errmsg ='OK',data = response_info_dict )
