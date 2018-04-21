@@ -2,11 +2,57 @@
 import re
 
 from flask import request, jsonify,current_app
+from flask import session
+
 from iHome.until.response_code import RET
 from iHome import redis_store, db
 from iHome.models import User
 
 from . import api
+@api.route('/session',methods = ['POST'])
+def login():
+    """
+    登陆
+    1.接收登陆参数：手机号  密码
+    2.判断参数是否为空，并校验手机号的格式
+    3.使用手机号查询用户信息
+    4.对比用户的密码
+    5.写入状态保持信息到session
+    6.响应登陆结果
+    """
+    #1.接收登陆参数：手机号  密码
+    json_dict = request.json
+    mobile = json_dict.get('mobile')
+    password = json_dict.get('password')
+    #2.判断参数是否为空，并校验手机号的格式
+    if not all([mobile,password]):
+        return jsonify(errno = RET.PARAMERR,errmsg = '参数错误')
+    if not re.match(r'^1[3456789][0-9]{9}$',mobile):
+        return jsonify(errno = RET.PARAMERR,errmsg = '手机格式错误')
+    #3.使用手机号查询用户信息
+    try:
+        user = User.query.filter(User.mobile==mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '查询用户数据失败')
+    #这里主要是用户名错误，但为了安全要打印用户名或者密码错误迷惑黑客
+    if not user:
+        return jsonify(errno = RET.NODATA,errmsg = '用户名或者密码错误')
+    #4.对比用户的密码，要先在modles定义一个check_password_hash方法把数据库的密码解密
+    if not user.check_password(password):
+        return jsonify(errno = RET.NODATA,errmsg = '用户名或者密码错误')
+    #5.写入状态保持信息到session
+    session['user_id'] = user.id
+    session['user_name'] = user.name
+    #6.响应登陆结果
+    return jsonify(errno = RET.OK,errmsg = '登陆成功')
+
+
+
+
+
+
+
 @api.route('/users',methods=['POST'])
 def register():
     """
@@ -43,6 +89,7 @@ def register():
     #3.获取服务器存储的验证码
     try:
      sms_code_server = redis_store.get('SMS:%s'%mobile)
+     current_app.logger.debug(sms_code_server)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno = RET.DBERR,errmsg = '查询短信验证码失败')

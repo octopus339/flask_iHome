@@ -55,11 +55,12 @@ def send_sms_code():
         return jsonify(errno = RET.PARAMERR,errmsg = '输入的验证码错误')
     #5.对比成功后生成短信验证码
     sms_code = '%06d'%random.randint(0,999999)
+    current_app.logger.debug(sms_code)
 
     #6. 调用单例发送短信验证码
-    result = CCP().send_sms_code(mobile,[sms_code,constants.SMS_CODE_REDIS_EXPIRES/60],'1')
-    if result != 1:
-        return jsonify(errno = RET.THIRDERR,errmsg = '短信验证码发送失败')
+    # result = CCP().send_sms_code(mobile,[sms_code,constants.SMS_CODE_REDIS_EXPIRES/60],'1')
+    # if result != 1:
+    #     return jsonify(errno = RET.THIRDERR,errmsg = '短信验证码发送失败')
     #7.如果短信验证码发送成功，则把短信验证码保存到redis数据库
     try:
         redis_store.set('SMS:%s'%mobile,sms_code,constants.SMS_CODE_REDIS_EXPIRES)
