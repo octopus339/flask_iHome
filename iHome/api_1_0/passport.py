@@ -44,6 +44,8 @@ def login():
     #5.写入状态保持信息到session
     session['user_id'] = user.id
     session['user_name'] = user.name
+
+
     #6.响应登陆结果
     return jsonify(errno = RET.OK,errmsg = '登陆成功')
 
