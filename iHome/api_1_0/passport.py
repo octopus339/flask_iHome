@@ -100,6 +100,9 @@ def register():
     #4.服务器的验证码与客户端的验证码进行对比
     if sms_code_client != sms_code_server:
         return jsonify(errno = RET.PARAMERR,errmsg = '短信验证码输出错误')
+    #判断手机后是否已经存在
+    if User.query.filter(User.mobile == mobile).first():
+        return jsonify(errno = RET.DATAEXIST,errmsg = '该手机号已经存在')
 
     #5.如果对比成功，则创建用户模型User对象，并给属性赋值
     user = User()
@@ -116,6 +119,8 @@ def register():
         current_app.logger.error(e)
         db.session.rollback()
         return jsonify(errno = RET.DBERR,errmsg = '保存用户信息失败')
+    session['user_id'] = user.id
+    session['user_name'] = user.name
     #7.响应注册结果
     return jsonify(errno = RET.OK,errmsg = '注册成功')
 
