@@ -24,12 +24,7 @@ def get_user_info():
     if not user:
         return jsonify(errno = RET.NODATA,errmsg = '用户不存在')
     #3.构造个人信息响应数据：响应用户的id 图片路径 用户名 手机号（定义一个字典保存）
-    response_info_dict={
-        'user_id':user.id,
-        'avatar_url':user.avatar_url,
-        'name':user.name,
-        'mobile':user.mobile
-    }
+    response_info_dict= user.to_dict()
     #4.响应个人信息的结果
     #前端会收到这样一个字典
 

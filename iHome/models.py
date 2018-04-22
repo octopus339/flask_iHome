@@ -38,6 +38,14 @@ class User(BaseModel, db.Model):
         self.password_hash = generate_password_hash(value)
     def check_password(self,password):
         return check_password_hash(self.password_hash,password)
+    def to_dict(self):
+        response_info_dict = {
+            'user_id': self.id,
+            'avatar_url': self.avatar_url,
+            'name': self.name,
+            'mobile': self.mobile
+        }
+        return response_info_dict
 
 
 
