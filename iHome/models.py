@@ -41,7 +41,8 @@ class User(BaseModel, db.Model):
     def to_dict(self):
         response_info_dict = {
             'user_id': self.id,
-            'avatar_url': self.avatar_url,
+            #要修改跳转的地址不然再刷新一次图片将显示不了
+            'avatar_url': constants.QINIU_DOMIN_PREFIX +(self.avatar_url if self.avatar_url else ''),
             'name': self.name,
             'mobile': self.mobile
         }

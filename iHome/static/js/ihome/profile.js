@@ -28,6 +28,7 @@ $(document).ready(function () {
 
     // TODO: 管理上传用户头像表单的行为
 
+
     $('#form-avatar').submit(function (event) {
         //禁用原本的form表单用自己写的ajax传file文件
         event.preventDefault();
