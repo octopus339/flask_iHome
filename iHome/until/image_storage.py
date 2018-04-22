@@ -27,11 +27,12 @@ def upload_image(image_data):
     else:
         raise Exception('上传图片失败')
 
+#http://oyucyko3w.bkt.clouddn.com/加七牛云图片生成的唯一标示key测试图片是否上传成功
+# if __name__ == '__main__':
 
-if __name__ == '__main__':
-    path = '/home/python/Desktop/fruit.jpg'
-    with open(path,'rb') as f:
-        image = f.read()
-
-
-    upload_image(image)
+#     path = '/home/python/Desktop/fruit.jpg'
+#     with open(path,'rb') as f:
+#         image = f.read()
+#
+#
+#     upload_image(image)

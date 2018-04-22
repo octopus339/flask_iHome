@@ -1,10 +1,67 @@
 # -*- coding:utf-8 -*-
 '个人中心'
+from celery import current_app
+from flask import request
 from flask import session, jsonify
 
+from iHome import db, constants
 from iHome.models import User
 from iHome.until.response_code import RET
 from . import api
+from iHome.until.image_storage import upload_image
+
+@api.route('/users/avatar')
+def upload_avatar():
+    """
+    上传用户头像
+    0.TODO判断用户是否登陆
+    1.获取用户上传的头像数据并校验
+    2.查询当前登陆用户
+    3.调用上传工具方法实现用户头像上传
+    4.把用户上传的头像数据传到当前登陆用户的user模型
+    5.把数据保存到数据库
+    6.响应上传用户头像的结果
+    """
+    #1.获取用户上传的头像数据并校验
+    try:
+        avatar_data = request.files.get('avatar')
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.PARAMERR,errmsg = '获取用户上传的图片失败')
+    #2.查询当前登陆用户
+    user_id = session['user_id']
+    try:
+        user = User.query.get(user_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '查询用户信息失败')
+    if not user:
+        return jsonify(errno = RET.PARAMERR,errmsg = '用户不存在')
+    #3.调用上传工具方法实现用户头像上传
+    try:
+        key = upload_image(avatar_data)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.THIRDERR,errmsg = '上传用户头像失败')
+    #4.把用户上传的头像数据传到当前登陆用户的user模型
+    user.avatar_url = key
+    #5.把数据保存到数据库
+    try:
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        db.session.rollback()
+        return jsonify(errno = RET.DBERR,errmsg = '保存用户头像失败')
+    #6.响应上传用户头像的结果
+    #因为http://oyucyko3w.bkt.clouddn.com/是配置信息所以写到constants
+    # avatar_url = 'http://oyucyko3w.bkt.clouddn.com/' + key
+    avatar_url = constants.QINIU_DOMIN_PREFIX + key
+    return jsonify(errno = RET.OK,errmsg = '上传用户头像成功',data = avatar_url)
+
+
+
+
+
 @api.route('/users',methods = ['GET'])
 def get_user_info():
     """提供个人信息
