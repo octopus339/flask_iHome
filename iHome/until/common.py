@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from flask import session, jsonify
+from flask import session, jsonify,g
 from werkzeug.routing import BaseConverter
 
 from iHome.until.response_code import RET
@@ -22,6 +22,8 @@ def login_required(view_func):
         if not user_id:
             return jsonify(errno = RET.SESSIONERR,errmsg = '用户未登陆')
         else:
+            ## 当用户已登录，使用g变量记录用户的user_id，方便被装饰是的视图函数中可以直接使用
+            g.user_id = user_id
             #实际是调用杯装饰的函数，即装饰器下的函数
             return view_func(*args,**kwargs)
     return wraaper

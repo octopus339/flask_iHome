@@ -44,7 +44,10 @@ $(document).ready(function () {
                 if (response.errno == 0){
                     $('#user-avatar').attr('src', response.data);
 
-                }else {
+                }else if (response.errno == '4101'){
+                  location.href = 'login.html'
+        }
+                else {
                     alert(response.errmsg)
                 }
 
@@ -82,7 +85,10 @@ $(document).ready(function () {
                 //提示修改成功
                 showSuccessMsg()
 
-            }else {
+            }else if (response.errno == '4101'){
+                location.href = 'login.html'
+        }
+            else {
                 alert(response.errmsg)
             }
 
@@ -92,5 +98,5 @@ $(document).ready(function () {
 
 })
 
-})
+});
 

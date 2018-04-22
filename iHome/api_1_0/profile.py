@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 '个人中心'
 from celery import current_app
-from flask import request
+from flask import request,g
 from flask import session, jsonify
 
 from iHome import db, constants
@@ -27,7 +27,8 @@ def set_user_name():
     if not new_name:
         return jsonify(errno = RET.PARAMERR,errmsg = '缺少参数')
     #2.查询当前用户名
-    user_id = session['user_id']
+    # user_id = session['user_id']
+    user_id = g.user_id
     try:
         user = User.query.get(user_id)
     except Exception as e:
@@ -72,7 +73,8 @@ def upload_avatar():
         current_app.logger.error(e)
         return jsonify(errno = RET.PARAMERR,errmsg = '获取用户上传的图片失败')
     #2.查询当前登陆用户
-    user_id = session['user_id']
+    # user_id = session['user_id']
+    user_id = g.user_id
     try:
         user = User.query.get(user_id)
     except Exception as e:
@@ -116,7 +118,8 @@ def get_user_info():
     4.响应个人信息的结果
     """
     #1.从session里获取当前登陆的用户user_id
-    user_id = session['user_id']
+    # user_id = session['user_id']
+    user_id = g.user_id
     #2.查询当前登陆用户的user信息
     try:
         user = User.query.get(user_id)
