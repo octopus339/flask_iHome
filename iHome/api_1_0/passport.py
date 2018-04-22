@@ -10,6 +10,18 @@ from iHome import redis_store, db
 from iHome.models import User
 
 from . import api
+@api.route('/session',methods = ['DELETE'])
+def logout():
+    """退出登录
+    0.判断用户是否登录
+    1.清理session数据
+    """
+    session.pop('user_name')
+
+
+    return jsonify(errno=RET.OK, errmsg='退出登录成功')
+
+
 @api.route('/session',methods = ['POST'])
 def login():
     """
