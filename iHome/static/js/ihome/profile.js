@@ -28,6 +28,31 @@ $(document).ready(function () {
 
     // TODO: 管理上传用户头像表单的行为
 
+    $('#form-avatar').submit(function (event) {
+        //禁用原本的form表单用自己写的ajax传file文件
+        event.preventDefault();
+        // 模拟表单的提价行为：方便读取input里面的file数据，不需要自己写代码获取
+        $(this).ajaxSubmit({
+            url:'/api/1.0/users/avatar',
+            type:'post',
+            headers:{'X-CSRFToken':getCookie('csrf_token')},
+            success:function (response) {
+                if (response.errno == 0){
+                    $('#user-avatar').attr('src', response.data);
+
+                }else {
+                    alert(response.errmsg)
+                }
+
+            }
+
+        })
+
+
+    });
+
+
+
     // TODO: 管理用户名修改的逻辑
 
 })
