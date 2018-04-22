@@ -9,7 +9,7 @@ from iHome.models import User
 from iHome.until.response_code import RET
 from . import api
 from iHome.until.image_storage import upload_image
-@api.route('/users/name')
+@api.route('/users/name',methods = ['PUT'])
 def set_user_name():
     """
     修改用户名
