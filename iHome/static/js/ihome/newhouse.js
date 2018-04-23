@@ -46,26 +46,29 @@ $(document).ready(function(){
 
         });
         params['facility'] = facilities;
-        console.log(params);
+        // console.log(params);
 
-        // $.ajax({
-        //     url:'',
-        //     type:'post',
-        //     data:JSON.stringify(params),
-        //     contentType:'application/json',
-        //     headers:{'X-CSRFToken':getCookie('csrf_token')},
-        //     success:function (response) {
-        //         if (response.errno == 0){
-        //
-        //         }else if (response.errno == '4101'){
-        //             location.href = 'login.html'
-        //         }
-        //         else {
-        //             alert(response.errmsg)
-        //         }
-        //
-        //     }
-        // })
+        $.ajax({
+            url:'/api/1.0/house',
+            type:'post',
+            data:JSON.stringify(params),
+            contentType:'application/json',
+            headers:{'X-CSRFToken':getCookie('csrf_token')},
+            success:function (response) {
+                if (response.errno == 0){
+                    //发布新的房源信息成功后的操作:隐藏基本信息的表单，展示上传图片的表单
+                    $('#form-house-info').hide();
+                    $('#form-house-image').show();
+
+                }else if (response.errno == '4101'){
+                    location.href = 'login.html'
+                }
+                else {
+                    alert(response.errmsg)
+                }
+
+            }
+        })
 
     })
 
