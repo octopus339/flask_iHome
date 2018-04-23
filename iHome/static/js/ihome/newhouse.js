@@ -49,7 +49,7 @@ $(document).ready(function(){
         // console.log(params);
 
         $.ajax({
-            url:'/api/1.0/house',
+            url:'/api/1.0/houses',
             type:'post',
             data:JSON.stringify(params),
             contentType:'application/json',

@@ -5,7 +5,7 @@ from flask import request
 
 from iHome import db
 from iHome.api_1_0 import api
-from iHome.models import Area, House
+from iHome.models import Area, House, Facility
 from iHome.until.common import login_required
 from iHome.until.response_code import RET
 
@@ -64,6 +64,11 @@ def pub_house():
     house.deposit = deposit
     house.min_days = min_days
     house.max_days = max_days
+    # 给facilities属性赋值，实现多对多的关联关系 facility == [2,4,6,8,10]
+    facilities = Facility.query.filter(Facility.id.in_(facility)).all()
+    house.facilities = facilities
+
+
     #4.保存房屋数据到数据库
     try:
         db.session.add(house)
@@ -75,7 +80,7 @@ def pub_house():
 
     # 5.响应发布新的房源的结果
     return jsonify(errno=RET.OK, errmsg='发布新房源成功')
-    #5.响应发布新的房源的结果
+
 
 
 
