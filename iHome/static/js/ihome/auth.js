@@ -14,6 +14,30 @@ function getCookie(name) {
 
 $(document).ready(function(){
     // TODO: 查询用户的实名认证信息
+    $.get('/api/1.0/users/auth',function (response) {
+        var real_name = response.data.real_name;
+        var id_card = response.data.id_card;
+        if (response.errno == 0){
+            if (real_name && id_card){
+                $('#real-name').val(real_name);
+                $('#id-card').val(id_card)
+                $('#real-name').attr('disabled', true);
+                $('#id-card').attr('disabled', true);
+                $('.btn-success').hide()
+
+            }
+
+        } else if (response.errno == '4101') {
+                        location.href = 'login.html'
+                    }
+                    else {
+                        alert(response.errmsg)
+                    }
+
+
+
+
+    });
 
 
     // TODO: 管理实名信息表单的提交行为
