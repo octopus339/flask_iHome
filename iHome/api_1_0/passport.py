@@ -17,6 +17,7 @@ def logout():
     1.清理session数据
     """
     session.pop('user_name')
+    session.pop('user_id')
 
 
     return jsonify(errno=RET.OK, errmsg='退出登录成功')

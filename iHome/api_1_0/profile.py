@@ -10,6 +10,47 @@ from iHome.until.common import login_required
 from iHome.until.response_code import RET
 from . import api
 from iHome.until.image_storage import upload_image
+@api.route('/users/auth',methods = ['POST'])
+@login_required
+def set_user_auth():
+    """实名认证
+    0.判断用户是否登陆
+    1.获取用户实名参数：real_name,id_card,并判断参数不为空
+    2.查询当前用户的user模型
+    3.把real_name,id_card赋值给user模型
+    4.保存到数据库
+    5.响应认证结果
+    """
+    #1.获取用户实名参数：real_name,id_card,并判断参数不为空
+    json_dict  = request.json
+    real_name = json_dict.get('real_name')
+    id_card = json_dict.get('id_card')
+    if not all([real_name,id_card]):
+        return jsonify(errno = RET.PARAMERR,errmsg = '缺少参数')
+    #2.查询当前用户的user模型
+    user_id = g.user_id
+    try:
+        user = User.query.get(user_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno = RET.DBERR,errmsg = '查询用户数据失败')
+    if not user:
+        return jsonify(errno = RET.PARAMERR,errmsg = '用户不存在')
+    #3.把real_name,id_card赋值给user模型
+    user.real_name = real_name
+    user.id_card = id_card
+    #4.保存到数据库
+    try:
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        db.session.rollback()
+        return jsonify(errno = RET.DBERR,errmsg = '认证信息保存失败')
+    #5.响应认证结果
+    return jsonify(errno = RET.OK,errmsg = '用户认证成功')
+
+
+
 @api.route('/users/name',methods = ['PUT'])
 @login_required
 def set_user_name():
