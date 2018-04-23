@@ -38,6 +38,14 @@ $(document).ready(function(){
         $(this).serializeArray().map(function (obj) {
             params[obj.name] = obj.value
         });
+        // console.log(params);
+        facilities = [];
+        // 收集界面上所有的"被选中"的checkbox,而且name必须是facility,然后each遍历每个facility的value值
+        $(':checkbox:checked[name=facility]').each(function (i,elem) {
+            facilities[i] = elem.value
+
+        });
+        params['facility'] = facilities;
         console.log(params);
 
         // $.ajax({
