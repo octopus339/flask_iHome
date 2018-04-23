@@ -11,7 +11,12 @@ $(document).ready(function(){
     $.get('/api/1.0/areas',function (response) {
         if (response.errno == 0){
             $.each(response.data,function (i,area) {
-                $('#area-id').append('<option value="'+area.aid+'">'+area.aname+'</option>')
+                //渲染城区信息到页面
+                // $('#area-id').append('<option value="'+area.aid+'">'+area.aname+'</option>')
+                // 使用art-template模板引擎中的js生成要渲染的html内容
+                var html = template('areas-tmpl',{'areas':response.data});
+                // 将生成的html赋值给某个标签
+                $('#area-id').html(html)
 
             })
 
