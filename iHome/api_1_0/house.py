@@ -79,7 +79,7 @@ def pub_house():
         return jsonify(errno=RET.DBERR, errmsg='保存房屋数据失败')
 
     # 5.响应发布新的房源的结果
-    return jsonify(errno=RET.OK, errmsg='发布新房源成功')
+    return jsonify(errno=RET.OK, errmsg='发布新房源成功',data = {'house_id':house.id})
 
 
 

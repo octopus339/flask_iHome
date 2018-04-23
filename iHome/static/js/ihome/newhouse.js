@@ -59,6 +59,8 @@ $(document).ready(function(){
                     //发布新的房源信息成功后的操作:隐藏基本信息的表单，展示上传图片的表单
                     $('#form-house-info').hide();
                     $('#form-house-image').show();
+                    $('#house-id').val(response.data.house_id)
+
 
                 }else if (response.errno == '4101'){
                     location.href = 'login.html'
