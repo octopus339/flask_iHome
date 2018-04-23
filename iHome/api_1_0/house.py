@@ -3,11 +3,64 @@ from celery import current_app
 from flask import jsonify,g
 from flask import request
 
+from iHome import constants
 from iHome import db
 from iHome.api_1_0 import api
-from iHome.models import Area, House, Facility
+from iHome.models import Area, House, Facility, HouseImage
 from iHome.until.common import login_required
 from iHome.until.response_code import RET
+from iHome.until.image_storage import upload_image
+
+@api.route('/houses/image', methods=['POST'])
+@login_required
+def upload_house_image():
+    """上传房屋图片
+    0.判断用户是否登录
+    1.接受参数：image_data,house_id,并校验
+    2.使用house_id，查询房屋信息，只有当房屋存在时，才会上传图片
+    3.调用上传图片的工具方法，上传房屋的图片
+    4.创建HouseImage模型对象，并保存房屋图片key，并保存到数据库
+    5.响应结果
+    """
+    #1.接受参数：image_data,house_id,并校验
+    try:
+        image_data = request.files.get('image_data')
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg='获取图片失败')
+    house_id = request.form.get('house_id')
+    if not house_id:
+        return jsonify(errno=RET.PARAMERR, errmsg='缺少必传参数')
+    #2.使用house_id，查询房屋信息，只有当房屋存在时，才会上传图片
+    try:
+       house = House.query.get(house_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg='参数错误')
+    #3.调用上传图片的工具方法，上传房屋的图片
+    try:
+        key = upload_image(image_data)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.THIRDERR, errmsg='上传房屋图片失败')
+    #4.创建HouseImage模型对象，并保存房屋图片key，并保存到数据库
+    house_image = HouseImage()
+    house_image.house_id = house_id
+    house_image.url = key
+    try:
+        db.session.add(house_image)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        db.session.rollback()
+        return jsonify(errno=RET.DBERR, errmsg='保存房屋图片数据失败')
+    #5.响应结果
+    house_image_url = constants.QINIU_DOMIN_PREFIX + key
+    return jsonify(errno=RET.OK, errmsg='上传房屋图片成功', data={'house_image_url': house_image_url})
+
+
+
+
 
 @api.route('/houses', methods=['POST'])
 @login_required
